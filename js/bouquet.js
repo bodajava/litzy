@@ -442,18 +442,21 @@ window.Bouquet = (function () {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
 
-    // En vertical el ancho es lo que manda: hay que alejarse bastante
-    // más para que el ramo entre entero y no se corten las rosas.
-    var narrow = w < 640, mid = w < 1000;
-    camera.position.z = narrow ? 8.0 : (mid ? 5.7 : 5.05);
-    camera.position.y = narrow ? 1.55 : (mid ? 0.72 : 0.50);
-    // apuntando algo más abajo, el ramo sube en el encuadre
-    var lookY = narrow ? 0.40 : (mid ? 0.66 : 0.62);
+    var narrow = w < 760;
+    // en escritorio corremos el ramo a la derecha para dejar sitio al texto;
+    // en móvil el texto va debajo, así que va centrado
+    var offX = narrow ? 0 : (w >= 1000 ? -0.82 : -0.45);
+    var lookY = narrow ? 0.30 : 0.62;
 
-    // en escritorio corremos el ramo a la derecha para dejar
-    // sitio al texto sin que se pisen
-    var offX = w >= 1000 ? -0.82 : (w >= 760 ? -0.45 : 0);
-    camera.position.x = offX;
+    /* Calculamos la distancia en vez de fijarla a mano: así el ramo
+       entra entero sea cual sea la forma del hueco (móvil vertical,
+       tablet, escritorio ancho) sin recortar ni quedarse diminuto. */
+    var halfH = 1.55;
+    var halfW = 1.62 + Math.abs(offX);
+    var t = Math.tan((camera.fov * Math.PI / 180) / 2);
+    var dist = Math.max(halfH / t, halfW / (t * camera.aspect));
+
+    camera.position.set(offX, lookY + (narrow ? 1.05 : 0), dist);
     camera.lookAt(offX, lookY, 0);
     camera.updateProjectionMatrix();
   }

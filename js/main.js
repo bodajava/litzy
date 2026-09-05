@@ -68,8 +68,11 @@
     var btn = $('#player-btn');
     var vinyl = $('#vinyl');
     var spotifyCtl = null;
-    var mode = null;          // 'local' | 'spotify' | null
+    var mode = null;            // 'local' | 'spotify' | null
     var playing = false;
+    var localReady = false;
+    var wanted = false;         // el usuario ya pidió música
+    var nudge = null;
 
     function setPlaying(v) {
       playing = v;
@@ -77,89 +80,136 @@
       if (vinyl) vinyl.classList.toggle('is-spin', v);
     }
 
-    // ¿existe el mp3 local?
+    /* ---------- fuentes ---------- */
+
+    // ¿existe assets/audio/song.mp3?
     function probeLocal() {
-      return new Promise(function (res) {
-        if (!audio || !CFG.localAudio) return res(false);
-        var done = false;
-        var t = setTimeout(function () { if (!done) { done = true; res(false); } }, 2500);
-        audio.addEventListener('canplay', function () {
-          if (!done) { done = true; clearTimeout(t); res(true); }
-        }, { once: true });
-        audio.addEventListener('error', function () {
-          if (!done) { done = true; clearTimeout(t); res(false); }
-        }, { once: true });
-        audio.preload = 'auto';
-        audio.load();
-      });
+      if (!audio || !CFG.localAudio) return;
+      audio.addEventListener('canplay', function () {
+        localReady = true;
+        if (wanted && !playing) play();     // llegó tarde: arrancamos igual
+      }, { once: true });
+      audio.addEventListener('error', function () { localReady = false; }, { once: true });
+      audio.preload = 'auto';
+      audio.load();
     }
 
-    // API del iframe de Spotify (permite play/pause desde el botón)
     function loadSpotifyAPI() {
       return new Promise(function (res) {
         if (window.SpotifyIframeApi) return res(window.SpotifyIframeApi);
-        var s = document.createElement('script');
-        s.src = 'https://open.spotify.com/embed/iframe-api/v1';
-        s.async = true;
+        var sc = document.createElement('script');
+        sc.src = 'https://open.spotify.com/embed/iframe-api/v1';
+        sc.async = true;
         var settled = false;
         window.onSpotifyIframeApiReady = function (api) {
           if (!settled) { settled = true; res(api); }
         };
-        s.onerror = function () { if (!settled) { settled = true; res(null); } };
-        setTimeout(function () { if (!settled) { settled = true; res(null); } }, 6000);
-        document.head.appendChild(s);
+        sc.onerror = function () { if (!settled) { settled = true; res(null); } };
+        setTimeout(function () { if (!settled) { settled = true; res(null); } }, 8000);
+        document.head.appendChild(sc);
       });
     }
 
     function initSpotify() {
-      return loadSpotifyAPI().then(function (api) {
-        if (!api) return false;
+      loadSpotifyAPI().then(function (api) {
+        if (!api) return;
         var el = $('#spotify-embed');
-        if (!el) return false;
-        return new Promise(function (res) {
-          try {
-            api.createController(el, {
-              uri: 'spotify:track:' + (CFG.spotifyTrackId || ''),
-              width: '100%', height: 152
-            }, function (ctl) {
-              spotifyCtl = ctl;
-              ctl.addListener('playback_update', function (e) {
-                if (e && e.data) setPlaying(!e.data.isPaused);
-              });
-              res(true);
+        if (!el) return;
+        try {
+          api.createController(el, {
+            uri: 'spotify:track:' + (CFG.spotifyTrackId || ''),
+            width: '100%', height: 152
+          }, function (ctl) {
+            spotifyCtl = ctl;
+            ctl.addListener('playback_update', function (e) {
+              if (e && e.data) {
+                setPlaying(!e.data.isPaused);
+                if (!e.data.isPaused) hideNudge();
+              }
             });
-            setTimeout(function () { res(!!spotifyCtl); }, 4000);
-          } catch (err) { res(false); }
-        });
+          });
+        } catch (e) {}
       });
     }
 
-    // arranca tras el gesto de abrir el sobre
+    /* Preparamos TODO antes de que el usuario toque nada, para que al
+       pulsar "Abrir" sólo quede llamar a play(). Los móviles sólo dejan
+       sonar dentro del propio gesto: si esperamos a cargar algo, se
+       pierde el permiso y no suena nada. */
+    function prepare() {
+      probeLocal();
+      initSpotify();
+    }
+
+    /* ---------- reproducir (SÍNCRONO dentro del gesto) ---------- */
+    function play() {
+      if (localReady && audio) {
+        mode = 'local';
+        audio.loop = true;
+        audio.volume = 0;
+        var pr = audio.play();
+        setPlaying(true);
+        hideNudge();
+        if (window.gsap) gsap.to(audio, { volume: 0.55, duration: 3.5, ease: 'power1.inOut' });
+        else audio.volume = 0.55;
+        if (pr && pr.catch) pr.catch(function () { setPlaying(false); showNudge(); });
+        return true;
+      }
+      if (spotifyCtl) {
+        mode = 'spotify';
+        try {
+          spotifyCtl.play();
+          // Spotify vive en un iframe de otro dominio: en el móvil casi
+          // nunca acepta el play automático. Si en 1,5 s no suena,
+          // ofrecemos un toque más.
+          setTimeout(function () { if (!playing) showNudge(); }, 1500);
+          return true;
+        } catch (e) {}
+      }
+      showNudge();
+      return false;
+    }
+
+    /* ---------- aviso de "toca para la música" ---------- */
+    function showNudge() {
+      if (nudge || playing) return;
+      nudge = document.createElement('button');
+      nudge.className = 'music-nudge';
+      nudge.type = 'button';
+      nudge.innerHTML = '<span class="music-nudge__ico">\u266a</span>' +
+                        '<span>Toca aqu\u00ed para la m\u00fasica</span>';
+      nudge.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (!play()) {
+          // último recurso: llevarla al reproductor de Spotify
+          var sec = $('#sec-song');
+          if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          hideNudge();
+        }
+      });
+      document.body.appendChild(nudge);
+      requestAnimationFrame(function () { if (nudge) nudge.classList.add('is-on'); });
+    }
+
+    function hideNudge() {
+      if (!nudge) return;
+      var n = nudge; nudge = null;
+      n.classList.remove('is-on');
+      setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, 400);
+    }
+
+    /* ---------- API ---------- */
     function start() {
+      wanted = true;
       player.classList.add('is-on');
       player.setAttribute('aria-hidden', 'false');
+      play();
+    }
 
-      return probeLocal().then(function (ok) {
-        if (ok) {
-          mode = 'local';
-          audio.volume = 0;
-          var p = audio.play();
-          if (p && p.catch) p.catch(function () { setPlaying(false); });
-          setPlaying(true);
-          // fundido de entrada
-          if (hasGSAP) gsap.to(audio, { volume: 0.55, duration: 3.5, ease: 'power1.inOut' });
-          else audio.volume = 0.55;
-          return;
-        }
-        mode = 'spotify';
-        return initSpotify().then(function (ready) {
-          if (ready && spotifyCtl) {
-            try { spotifyCtl.play(); setPlaying(true); } catch (e) { setPlaying(false); }
-          } else {
-            setPlaying(false);
-          }
-        });
-      });
+    function pause() {
+      if (mode === 'local' && audio && !audio.paused) audio.pause();
+      else if (spotifyCtl) { try { spotifyCtl.pause(); } catch (e) {} }
+      setPlaying(false);
     }
 
     function toggle() {
@@ -173,21 +223,15 @@
         setPlaying(!playing);
         return;
       }
-      // sin control: llevamos a la sección de la canción
-      var sec = $('#sec-song');
-      if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    // pausa sea cual sea la fuente (mp3 local o Spotify)
-    function pause() {
-      if (mode === 'local' && audio && !audio.paused) audio.pause();
-      else if (spotifyCtl) { try { spotifyCtl.pause(); } catch (e) {} }
-      setPlaying(false);
+      if (!play()) {
+        var sec = $('#sec-song');
+        if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
 
     if (btn) btn.addEventListener('click', toggle);
 
-    return { start: start, toggle: toggle, pause: pause };
+    return { prepare: prepare, start: start, toggle: toggle, pause: pause };
   })();
 
   /* ==========================================================
@@ -796,6 +840,7 @@
      ARRANQUE
      ========================================================== */
   function boot() {
+    Music.prepare();   // cargar antes de que haga falta
     Gate.bind();
 
     // si ya abrió el sobre en esta sesión, saltamos directo

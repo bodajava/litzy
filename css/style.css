@@ -404,12 +404,6 @@ body.no-scroll{overflow:hidden}
     linear-gradient(100deg, rgba(255,248,242,.95) 0%, rgba(255,248,242,.72) 25%, transparent 50%),
     linear-gradient(to top, rgba(255,241,234,.8) 0%, transparent 30%);
 }
-@media (max-width:760px){
-  .sec--bouquet{background:radial-gradient(58% 32% at 50% 34%, rgba(198,176,226,.48), transparent 74%)}
-  .sec--bouquet::before{
-    background:linear-gradient(to top, rgba(255,248,242,.85) 0%, rgba(255,248,242,.58) 26%, transparent 50%);
-  }
-}
 #bouquet-canvas{grid-area:s; width:100%; height:100svh; touch-action:pan-y}
 .bouquet__ui{
   grid-area:s; z-index:2; pointer-events:none;
@@ -422,6 +416,28 @@ body.no-scroll{overflow:hidden}
 .scroll-cue span{white-space:nowrap}
 @media (min-width:760px){ .bouquet__ui{padding-right:40%} }
 @media (min-width:1000px){ .bouquet__ui{padding-right:46%} }
+
+/* En el móvil no superponemos: el ramo arriba y el texto debajo.
+   Encima se pisaban y no se leía nada. */
+@media (max-width:760px){
+  .sec--bouquet{
+    grid-template-areas:'bq' 'txt';
+    grid-template-rows:auto auto;
+    align-content:center;
+    padding:clamp(64px,8vh,96px) 0 clamp(48px,7vh,80px);
+    background:radial-gradient(56% 24% at 50% 26%, rgba(198,176,226,.5), transparent 72%);
+  }
+  .sec--bouquet::before{display:none}
+  #bouquet-canvas{grid-area:bq; height:46svh; min-height:280px}
+  .bouquet__ui{
+    grid-area:txt; align-self:start;
+    padding:20px var(--pad) 0; padding-right:var(--pad);
+  }
+  .sec--bouquet .sec__title{font-size:clamp(30px,8.4vw,42px)}
+  .sec--bouquet .sec__lede{max-width:100%}
+  .scroll-cue{margin-top:24px}
+}
+
 
 .scroll-cue{margin-top:32px; display:inline-flex; flex-direction:column; align-items:flex-start; gap:12px}
 .scroll-cue span{
@@ -915,6 +931,27 @@ body.no-scroll{overflow:hidden}
 .player.is-playing .player__bars i:nth-child(4){animation-delay:.54s}
 @keyframes eq{0%,100%{height:22%} 50%{height:100%}}
 @media (max-width:560px){ .player__meta{display:none} .player{padding:8px; gap:0} }
+
+/* aviso flotante: sale sólo si el móvil bloqueó la música */
+.music-nudge{
+  position:fixed; left:50%; bottom:calc(var(--pad) * .55 + 62px); z-index:6100;
+  transform:translate(-50%, 14px);
+  display:inline-flex; align-items:center; gap:9px;
+  padding:12px 20px; border-radius:100px;
+  font-family:var(--f-sans); font-size:11.5px; letter-spacing:.14em;
+  text-transform:uppercase; white-space:nowrap;
+  color:#fff;
+  background:linear-gradient(120deg, var(--pink), var(--pink-deep) 60%, var(--lilac));
+  border:2px solid #fff;
+  box-shadow:0 14px 30px -12px rgba(224,114,154,.75);
+  opacity:0; pointer-events:none;
+  transition:opacity .4s var(--ease), transform .4s var(--ease);
+}
+.music-nudge.is-on{opacity:1; transform:translate(-50%,0); pointer-events:auto}
+.music-nudge__ico{font-size:15px; line-height:1}
+@media (max-width:560px){
+  .music-nudge{font-size:10.5px; padding:11px 16px; bottom:calc(var(--pad) * .55 + 58px)}
+}
 
 .progress{
   position:fixed; top:0; left:0; right:0; height:4px; z-index:6001;
