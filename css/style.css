@@ -44,7 +44,9 @@
 
 /* ---------- RESET ---------- */
 *,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+/* los ramilletes de las esquinas asoman a propósito: recortamos en
+   html y body porque algunos navegadores móviles ignoran uno u otro */
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth; overflow-x:hidden}
 body{
   margin:0; padding:0;
   color:var(--ink);
