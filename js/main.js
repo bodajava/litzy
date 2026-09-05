@@ -160,9 +160,27 @@
         if (pr && pr.catch) pr.catch(function () { setPlaying(false); showNudge(); });
         return true;
       }
-      /* Spotify va en un iframe de otro dominio y el móvil nunca le deja
-         sonar solo, así que el fondo lo pone la música generada aquí
-         mismo: es del propio sitio y arranca dentro del gesto. */
+      /* Primero intentamos LA canción de verdad. Spotify va en un iframe
+         de otro dominio: en el escritorio suele dejarlo sonar, en el móvil
+         casi nunca. Si en 1,6 s no ha sonado, entra la música generada
+         aquí mismo para que nunca se abra en silencio. */
+      var triedSpotify = false;
+      if (spotifyCtl) {
+        try { spotifyCtl.play(); triedSpotify = true; } catch (e) {}
+      }
+
+      if (triedSpotify) {
+        setTimeout(function () {
+          if (!playing) fallbackAmbient();
+        }, 1600);
+        return true;
+      }
+      return fallbackAmbient();
+    }
+
+    // música de reserva: generada en el navegador, siempre disponible
+    function fallbackAmbient() {
+      if (playing) return true;
       if (window.Ambient && Ambient.available() && Ambient.start()) {
         mode = 'ambient';
         setPlaying(true);
