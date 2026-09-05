@@ -122,10 +122,15 @@
           }, function (ctl) {
             spotifyCtl = ctl;
             ctl.addListener('playback_update', function (e) {
-              if (e && e.data) {
-                setPlaying(!e.data.isPaused);
-                if (!e.data.isPaused) hideNudge();
+              if (!e || !e.data) return;
+              if (!e.data.isPaused) {
+                // suena la canción de verdad: bajamos el fondo
+                if (mode !== 'spotify' && window.Ambient) Ambient.stop();
+                if (mode === 'local' && audio && !audio.paused) audio.pause();
+                mode = 'spotify';
+                hideNudge();
               }
+              setPlaying(!e.data.isPaused);
             });
           });
         } catch (e) {}
@@ -155,16 +160,14 @@
         if (pr && pr.catch) pr.catch(function () { setPlaying(false); showNudge(); });
         return true;
       }
-      if (spotifyCtl) {
-        mode = 'spotify';
-        try {
-          spotifyCtl.play();
-          // Spotify vive en un iframe de otro dominio: en el móvil casi
-          // nunca acepta el play automático. Si en 1,5 s no suena,
-          // ofrecemos un toque más.
-          setTimeout(function () { if (!playing) showNudge(); }, 1500);
-          return true;
-        } catch (e) {}
+      /* Spotify va en un iframe de otro dominio y el móvil nunca le deja
+         sonar solo, así que el fondo lo pone la música generada aquí
+         mismo: es del propio sitio y arranca dentro del gesto. */
+      if (window.Ambient && Ambient.available() && Ambient.start()) {
+        mode = 'ambient';
+        setPlaying(true);
+        hideNudge();
+        return true;
       }
       showNudge();
       return false;
@@ -208,6 +211,7 @@
 
     function pause() {
       if (mode === 'local' && audio && !audio.paused) audio.pause();
+      else if (mode === 'ambient' && window.Ambient) Ambient.stop();
       else if (spotifyCtl) { try { spotifyCtl.pause(); } catch (e) {} }
       setPlaying(false);
     }
@@ -216,6 +220,11 @@
       if (mode === 'local' && audio) {
         if (audio.paused) { audio.play(); setPlaying(true); }
         else { audio.pause(); setPlaying(false); }
+        return;
+      }
+      if (mode === 'ambient' && window.Ambient) {
+        if (Ambient.isPlaying()) { Ambient.stop(); setPlaying(false); }
+        else { Ambient.start(); setPlaying(true); }
         return;
       }
       if (spotifyCtl) {
