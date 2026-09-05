@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFF8F2">
+<title>Para mi reina hermosa</title>
+<meta name="description" content="Un pequeño detalle hecho con todo mi amor.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Parisienne&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="is-locked">
+
+<!-- ============ GRAIN + VIGNETTE OVERLAYS ============ -->
+<div class="bg-pattern" aria-hidden="true"></div>
+<div class="bg-glow" aria-hidden="true"></div>
+
+<!-- ============ 1. PASSWORD GATE ============ -->
+<section id="gate" class="gate">
+  <canvas id="petals-canvas" aria-hidden="true"></canvas>
+
+  <div class="gate__frame">
+    <div class="gate__inner">
+      <span class="deco deco--tl" aria-hidden="true"></span>
+      <span class="deco deco--br" aria-hidden="true"></span>
+      <div class="gate__seal" aria-hidden="true">
+        <svg viewBox="0 0 100 100" class="seal-svg">
+          <circle class="seal-ring" cx="50" cy="50" r="40"/>
+          <circle class="seal-ring seal-ring--2" cx="50" cy="50" r="33"/>
+          <path class="seal-heart" d="M50 77 C 20 58, 10 41, 19 29 C 28 17, 44 20, 50 33 C 56 20, 72 17, 81 29 C 90 41, 80 58, 50 77 Z"/>
+        </svg>
+      </div>
+
+      <p class="gate__eyebrow">Un sobre cerrado para Litzy</p>
+      <h1 class="gate__title">Para mi<br><em>reina hermosa</em></h1>
+      <p class="gate__sub">Escribe la palabra secreta, Litzy, y te enseño lo que te preparé</p>
+
+      <form class="gate__form" id="gate-form" autocomplete="off" novalidate>
+        <div class="field">
+          <input type="password" id="gate-input" class="field__input"
+                 placeholder=" " inputmode="text" autocapitalize="none"
+                 autocorrect="off" spellcheck="false" aria-label="Palabra secreta">
+          <label for="gate-input" class="field__label">palabra secreta</label>
+          <button type="button" class="field__eye" id="gate-eye" aria-label="Mostrar">
+            <svg viewBox="0 0 24 24"><path d="M1.5 12S5 5.5 12 5.5 22.5 12 22.5 12 19 18.5 12 18.5 1.5 12 1.5 12Z"/><circle cx="12" cy="12" r="3.2"/></svg>
+          </button>
+        </div>
+        <button type="submit" class="btn-open" id="gate-submit">
+          <span>Abrir</span>
+          <svg viewBox="0 0 24 24" class="btn-open__arrow"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+        </button>
+        <p class="gate__error" id="gate-error" role="alert"></p>
+        <button type="button" class="gate__hint-btn" id="gate-hint-btn">¿Una pista?</button>
+        <p class="gate__hint" id="gate-hint"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. CINEMATIC INTRO ============ -->
+<section id="intro" class="intro" aria-hidden="true">
+  <div class="intro__stage">
+    <div class="film-frame">
+      <div class="film-photo" data-photo="1"></div>
+      <div class="film-photo" data-photo="2"></div>
+      <div class="film-photo" data-photo="3"></div>
+      <div class="film-photo" data-photo="4"></div>
+      <div class="light-leak" aria-hidden="true"></div>
+      <div class="film-caption" data-cap="1"><span>the phone</span></div>
+      <div class="film-caption" data-cap="2"><span>talking</span></div>
+      <div class="film-caption" data-cap="3"><span>and I got<br>a feeling</span></div>
+      <div class="film-title" data-cap="4">
+        <p class="film-title__small">Para mi</p>
+        <p class="film-title__big">reina hermosa</p>
+      </div>
+    </div>
+  </div>
+  <button class="skip-btn" id="skip-intro">Saltar intro &rsaquo;</button>
+</section>
+
+<!-- ============ 3. MAIN STORY ============ -->
+<main id="story" class="story" aria-hidden="true">
+
+  <!-- --- 3D BOUQUET --- -->
+  <section class="sec sec--bouquet" id="sec-bouquet">
+    <canvas id="bouquet-canvas"></canvas>
+    <div class="bouquet__ui">
+      <p class="kicker" data-anim="fade">Hecho a mano, sólo para Litzy</p>
+      <h2 class="sec__title" data-anim="chars">Un ramo que<br><em>nunca se marchita</em></h2>
+      <p class="sec__lede" data-anim="fade">Gíralo con el dedo, Litzy. Cada flor la puse pensando en ti, y ninguna se va a marchitar nunca.</p>
+      <div class="scroll-cue" data-anim="fade">
+        <span>desliza para seguir</span>
+        <i></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- --- THE LETTER --- -->
+  <section class="sec sec--letter" id="sec-letter">
+    <div class="letter" data-anim="letter">
+      <span class="deco deco--tl" aria-hidden="true"></span>
+      <span class="deco deco--br" aria-hidden="true"></span>
+      <div class="letter__clip" aria-hidden="true"></div>
+      <div class="letter__stamp" aria-hidden="true">
+        <div class="stamp__art"></div>
+        <span>AMOR</span>
+      </div>
+      <div class="letter__head">
+        <p><span class="lbl">PARA:</span> <em>ti</em></p>
+        <p><span class="lbl">DE:</span> <em>tu niño</em></p>
+      </div>
+      <div class="letter__body" id="letter-body">
+        <p class="letter__salut">Para mi reina hermosa:</p>
+        <p>Hice este pequeño detalle para ti con todo mi amor, intentando sacarte una sonrisa y hacerte feliz aunque esté lejos.</p>
+        <p>Siempre te he dicho lo infinitamente especial y única que eres para mí; sé que aunque recorriera el mundo entero jamás encontraría a alguien con tu dulzura, tu educación, tu forma tan hermosa de pensar y todo lo que eres.</p>
+        <div class="letter__photos">
+          <figure class="lph"><img src="assets/img/us-1.jpg" alt="Nuestro corazón" loading="lazy"></figure>
+          <figure class="lph"><img src="assets/img/us-3.jpg" alt="En la pantalla" loading="lazy"></figure>
+          <figure class="lph"><img src="assets/img/us-2.jpg" alt="Otra vez" loading="lazy"></figure>
+        </div>
+
+        <p>Cada palabra aquí sale directamente de lo más profundo de mi corazón. Eres mi lugar seguro y mi mayor alegría.</p>
+        <p class="letter__close">Te quiero muchísimo, mi reina hermosa. 🤍🌸✨</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- --- KEEPSAKE BOOK --- -->
+  <section class="sec sec--book" id="sec-book">
+    <div class="sec__head">
+      <p class="kicker" data-anim="fade">Nuestro pequeño mundo</p>
+      <h2 class="sec__title" data-anim="chars">Momentos que<br><em>guardo conmigo</em></h2>
+      <p class="sec__lede" data-anim="fade">Ábrelo, Litzy. Cada página es un día en el que fuiste mi parte favorita.</p>
+    </div>
+
+    <div class="book-wrap" data-anim="fade">
+      <div class="book" id="book" role="group" aria-label="Libro de recuerdos">
+        <div class="book__base book__base--left" aria-hidden="true"></div>
+        <div class="book__base book__base--right" aria-hidden="true"></div>
+      <div class="leaf" data-leaf="0">
+        <div class="leaf__face leaf__face--front">
+          <div class="pg pg--cover">
+            <div class="cover__frame">
+              <span class="cover__rose" aria-hidden="true"></span>
+              <p class="cover__small">Nuestro</p>
+              <h3 class="cover__big">libro de<br>recuerdos</h3>
+              <span class="cover__orn">&#10087;</span>
+            </div>
+            <p class="cover__open">toca para abrirlo</p>
+          </div>
+        </div>
+        <div class="leaf__face leaf__face--back">
+          <div class="pg pg--note">
+            <p class="note__script">Para Litzy,<br>mi reina hermosa</p>
+            <p class="note__body">Guardé aquí cada momento que no quiero
+              olvidar. Pásalas despacio, como pasábamos nosotros
+              las noches hablando.</p>
+            <p class="note__sig">&#129293;</p>
+          </div>
+        </div>
+      </div>
+      <div class="leaf" data-leaf="1">
+        <div class="leaf__face leaf__face--front">
+          <div class="pg">
+            <div class="pg__photo"><img src="assets/img/her-1.jpg" alt="Ella" loading="lazy"></div>
+            <p class="pg__cap">tú</p>
+            <span class="pg__num">1</span>
+          </div>
+        </div>
+        <div class="leaf__face leaf__face--back">
+          <div class="pg">
+            <div class="pg__photo"><img src="assets/img/him-1.jpg" alt="Él" loading="lazy"></div>
+            <p class="pg__cap">yo, pensando en ti</p>
+            <span class="pg__num">2</span>
+          </div>
+        </div>
+      </div>
+      <div class="leaf" data-leaf="2">
+        <div class="leaf__face leaf__face--front">
+          <div class="pg">
+            <div class="pg__photo"><img src="assets/img/her-3.jpg" alt="Videollamada" loading="lazy"></div>
+            <p class="pg__cap">hablando hasta tarde</p>
+            <span class="pg__num">3</span>
+          </div>
+        </div>
+        <div class="leaf__face leaf__face--back">
+          <div class="pg">
+            <div class="pg__photo"><img src="assets/img/us-1.jpg" alt="Corazón con los dedos" loading="lazy"></div>
+            <p class="pg__cap">nuestro corazón</p>
+            <span class="pg__num">4</span>
+          </div>
+        </div>
+      </div>
+      <div class="leaf" data-leaf="3">
+        <div class="leaf__face leaf__face--front">
+          <div class="pg">
+            <div class="pg__photo"><img src="assets/img/her-4.jpg" alt="Videollamada" loading="lazy"></div>
+            <p class="pg__cap">esa sonrisa</p>
+            <span class="pg__num">5</span>
+          </div>
+        </div>
+        <div class="leaf__face leaf__face--back">
+          <div class="pg">
+            <div class="pg__photo"><img src="assets/img/us-2.jpg" alt="Corazón con los dedos" loading="lazy"></div>
+            <p class="pg__cap">otra vez</p>
+            <span class="pg__num">6</span>
+          </div>
+        </div>
+      </div>
+      <div class="leaf" data-leaf="4">
+        <div class="leaf__face leaf__face--front">
+          <div class="pg">
+            <div class="pg__photo"><img src="assets/img/her-2.jpg" alt="Ella" loading="lazy"></div>
+            <p class="pg__cap">mi persona favorita</p>
+            <span class="pg__num">7</span>
+          </div>
+        </div>
+        <div class="leaf__face leaf__face--back">
+          <div class="pg">
+            <div class="pg__photo"><img src="assets/img/us-3.jpg" alt="En la pantalla" loading="lazy"></div>
+            <p class="pg__cap">la distancia no gana</p>
+            <span class="pg__num">8</span>
+          </div>
+        </div>
+      </div>
+      <div class="leaf" data-leaf="5">
+        <div class="leaf__face leaf__face--front">
+          <div class="pg pg--note">
+            <p class="note__script">hasta que vuelvan<br>a florecer</p>
+            <p class="note__body">Y cuando florezcan, seguiré llenando
+              páginas contigo, Litzy.</p>
+            <p class="note__sig">&#127800;</p>
+          </div>
+        </div>
+        <div class="leaf__face leaf__face--back">
+          <div class="pg pg--cover pg--cover-back">
+            <div class="cover__frame"><span class="cover__rose" aria-hidden="true"></span></div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <button class="book__nav book__nav--prev" id="book-prev" aria-label="Página anterior">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <button class="book__nav book__nav--next" id="book-next" aria-label="Página siguiente">
+        <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+    </div>
+  </section>
+
+  <!-- --- SONG --- -->
+  <section class="sec sec--song" id="sec-song">
+    <div class="sec__head">
+      <p class="kicker" data-anim="fade">La canción que me acuerda a ti</p>
+      <h2 class="sec__title" data-anim="chars">Esta suena<br><em>como tú</em></h2>
+      <p class="sec__lede" data-anim="fade">La escucho y apareces tú, Litzy. Así de fácil.</p>
+    </div>
+    <div class="song-card" data-anim="fade">
+      <span class="deco deco--tr" aria-hidden="true"></span>
+      <div class="vinyl" id="vinyl" aria-hidden="true"><i></i></div>
+      <div class="song-embed">
+        <iframe id="spotify-embed" style="border-radius:14px"
+          src="https://open.spotify.com/embed/track/1eUDEJzgmfNcqXnFz0ObfD?utm_source=generator&theme=0"
+          width="100%" height="152" frameborder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy" title="Spotify"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- --- VIDEOS: HIM & HER --- -->
+  <section class="sec sec--vids" id="sec-vids">
+    <div class="sec__head">
+      <p class="kicker" data-anim="fade">Tú y yo</p>
+      <h2 class="sec__title" data-anim="chars">Dos videos,<br><em>un mismo recuerdo</em></h2>
+      <p class="sec__lede" data-anim="fade">Nuestro pequeño campeonato. Todavía digo que ganaste tú, Litzy.</p>
+    </div>
+    <div class="vid-grid">
+      <figure class="vidcard" data-anim="ph">
+        <div class="vidcard__frame">
+          <video id="vid-her" playsinline preload="metadata" poster="assets/img/poster-her.jpg" controls>
+            <source src="assets/video/her.mp4" type="video/mp4">
+          </video>
+          <button class="vid-sound" data-for="vid-her" aria-label="Activar sonido">
+            <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M17 9.5a4 4 0 0 1 0 5"/><path d="M19.5 7a7.5 7.5 0 0 1 0 10"/></svg>
+            <span>Sonido</span>
+          </button>
+          <div class="vidcard__empty" data-for="vid-her">
+            <span class="vidcard__empty-ico">🎬</span>
+            <p>Pon aquí el video de ella</p>
+            <code>assets/video/her.mp4</code>
+          </div>
+        </div>
+        <figcaption>ella</figcaption>
+      </figure>
+      <figure class="vidcard" data-anim="ph">
+        <div class="vidcard__frame">
+          <video id="vid-him" playsinline preload="metadata" poster="assets/img/poster-him.jpg" controls>
+            <source src="assets/video/him.mp4" type="video/mp4">
+          </video>
+          <button class="vid-sound" data-for="vid-him" aria-label="Activar sonido">
+            <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M17 9.5a4 4 0 0 1 0 5"/><path d="M19.5 7a7.5 7.5 0 0 1 0 10"/></svg>
+            <span>Sonido</span>
+          </button>
+          <div class="vidcard__empty" data-for="vid-him">
+            <span class="vidcard__empty-ico">🎬</span>
+            <p>Pon aquí el video de él</p>
+            <code>assets/video/him.mp4</code>
+          </div>
+        </div>
+        <figcaption>él</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- --- YOUTUBE --- -->
+  <section class="sec sec--yt" id="sec-yt">
+    <div class="sec__head">
+      <p class="kicker" data-anim="fade">Y esto también es para ti</p>
+      <h2 class="sec__title" data-anim="chars">Mírala <em>conmigo</em></h2>
+      <p class="sec__lede" data-anim="fade">Dale play y hacemos como que estamos en el mismo sitio.</p>
+    </div>
+    <div class="yt-wrap" data-anim="fade">
+      <div class="yt-frame" id="yt-frame">
+        <button class="yt-play" id="yt-play" aria-label="Reproducir video">
+          <svg viewBox="0 0 68 48"><path class="yt-play__bg" d="M66.5 7.7a8.6 8.6 0 0 0-6-6.1C55.2 0 34 0 34 0S12.8 0 7.5 1.6a8.6 8.6 0 0 0-6 6.1A90 90 0 0 0 0 24a90 90 0 0 0 1.5 16.3 8.6 8.6 0 0 0 6 6.1C12.8 48 34 48 34 48s21.2 0 26.5-1.6a8.6 8.6 0 0 0 6-6.1A90 90 0 0 0 68 24a90 90 0 0 0-1.5-16.3z"/><path d="M45 24 27 14v20z" fill="#fff"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- --- FINALE --- -->
+  <section class="sec sec--end" id="sec-end">
+    <span class="deco deco--tl" aria-hidden="true"></span>
+    <span class="deco deco--tr" aria-hidden="true"></span>
+    <span class="deco deco--bl" aria-hidden="true"></span>
+    <span class="deco deco--br" aria-hidden="true"></span>
+    <div class="end">
+      <div class="end__heart" id="end-heart" aria-hidden="true">
+        <svg viewBox="0 0 100 90"><path d="M50 84 C 18 60, 6 40, 14 25 C 22 10, 42 12, 50 28 C 58 12, 78 10, 86 25 C 94 40, 82 60, 50 84 Z"/></svg>
+      </div>
+      <h2 class="end__title" data-anim="chars">Te quiero<br><em>muchísimo</em></h2>
+      <p class="end__lede" data-anim="fade">Gracias por existir, Litzy.</p>
+      <p class="end__sig" data-anim="fade">🤍🌸✨</p>
+      <button class="btn-again" id="btn-again">Verlo otra vez</button>
+    </div>
+  </section>
+</main>
+
+<!-- ============ MINI PLAYER ============ -->
+<div class="player" id="player" aria-hidden="true">
+  <button class="player__btn" id="player-btn" aria-label="Música">
+    <span class="player__disc"><i></i></span>
+  </button>
+  <div class="player__meta">
+    <p class="player__t">Sonando para ti</p>
+    <div class="player__bars"><i></i><i></i><i></i><i></i></div>
+  </div>
+</div>
+<audio id="local-audio" loop preload="none"><source src="assets/audio/song.mp3" type="audio/mpeg"></audio>
+
+<!-- ============ SCROLL PROGRESS ============ -->
+<div class="progress" id="progress" aria-hidden="true"><i></i></div>
+
+<script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/vendor/ScrollTrigger.min.js"></script>
+<script src="assets/vendor/three.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/petals.js"></script>
+<script src="js/bouquet.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
